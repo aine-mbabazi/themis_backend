@@ -37,9 +37,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'transcription.apps.TranscriptionConfig',
+    "diarization.apps.DiarizationConfig",
+    "transcription_chunks.apps.TranscriptionChunksConfig",
+    "case_brief.apps.CaseBriefConfig",
     "api",
     "cases",
     "rest_framework",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -124,3 +129,17 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+
+import os
+from dotenv import load_dotenv, find_dotenv
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+
+AAI_KEY = os.getenv("aai_key", "")
+HF_AUTH_TOKEN = os.getenv("hf_auth_token", "")
+OPENAI_API_KEY = os.getenv("openai_api_key", "")
