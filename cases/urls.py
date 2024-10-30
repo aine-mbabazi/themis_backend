@@ -1,9 +1,14 @@
 # urls.py
-from django.urls import path
+# from django.urls import path
 
-from cases.views import transcribed_cases_count
+# from cases.views import transcribed_cases_count
+
+
+from django.urls import path
+from api.views import TranscriptionViewSet
 
 
 urlpatterns = [
-    path('api/transcribed-cases/', transcribed_cases_count, name='transcribed-cases'),
+    # path('transcriptions/transcription_status_counts/', TranscriptionViewSet.as_view({'get': 'transcription_status_counts'}), name='transcription-status-counts'),
+
 ]

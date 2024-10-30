@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import NotFound
+from django.db.models import Count
 
 
 class TranscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -44,6 +45,24 @@ class TranscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixin
             'status': transcription.status,
             'transcription_text': transcription.transcription_text,
         })
+        
+        
+        
+    @action(detail=False, methods=['get'])
+    def transcription_status_counts(self, request):
+        """
+        Return the count of transcriptions with statuses 'completed' and 'pending'.
+        """
+        counts = Transcription.objects.values('status').annotate(total=Count('status'))
+        completed_count = next((item['total'] for item in counts if item['status'] == 'completed'), 0)
+        pending_count = next((item['total'] for item in counts if item['status'] == 'pending'), 0)
+        
+        return Response({
+            'completed': completed_count,
+            'pending': pending_count,
+        }, status=status.HTTP_200_OK)
+        
+        
 
 
 class TranscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -137,7 +156,8 @@ class AudioChunkViewSet(viewsets.ModelViewSet):
 
 from django.shortcuts import render, get_object_or_404, redirect
 from transcription.models import Transcription
-from .casebrief_generation import generate_case_brief_from_transcription
+# from .casebrief_generation import generate_case_brief_from_transcription
+
 
 def generate_case_brief_view(request, transcription_id):
     transcription = get_object_or_404(Transcription, id=transcription_id)
@@ -147,7 +167,8 @@ def generate_case_brief_view(request, transcription_id):
     image_path = "/home/student/Downloads/themis_logo.png"  # Optional: Path to an image if needed
     
     # Call the function to generate the case brief and save it as a PDF
-    generate_case_brief_from_transcription(transcription_id, pdf_filename, image_path)
+    # generate_case_brief_from_transcription(transcription_id, pdf_filename, image_path)
 
     # Redirect or render a success message (based on your requirement)
     return redirect('case_brief_success')  # Redirect to a success page
+
