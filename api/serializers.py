@@ -36,7 +36,3 @@ class DiarizedSegmentSerializer(serializers.ModelSerializer):
 
         
 
-class CaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Case
-        fields = ['id', 'title', 'is_transcribed']
