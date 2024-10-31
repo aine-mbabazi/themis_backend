@@ -7,6 +7,9 @@ from .views import (
     AudioChunkViewSet,
     CaseMatchingDetailView,
     CaseMatchingListView,
+    CaseBriefSegmentListCreateView,
+    CaseBriefDetailView,
+    download_case_brief_pdf,
 )
 
 urlpatterns = [
@@ -24,4 +27,8 @@ urlpatterns = [
 
     path('case_laws/', CaseMatchingListView.as_view(), name='case_laws'),
     path('case_laws/<int:id>/', CaseMatchingDetailView.as_view(), name='case_law'),
+
+    path('download_case_brief/transcription/<int:transcription_id>/', download_case_brief_pdf, name='download_case_brief_pdf'),
+    path('case_briefs/',  CaseBriefSegmentListCreateView.as_view(), name='case_brief_list'),
+    path('case_brief/<int:pk>/', CaseBriefDetailView.as_view(), name='case_brief_detail'),
 ]

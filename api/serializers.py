@@ -4,6 +4,8 @@ from transcription.models import Transcription
 from diarization.models import DiarizedSegment
 from transcription_chunks.models import AudioChunk
 from case_matching.models import Case_matching
+from caseBrief.models import CaseBrief
+
 
 class AudioChunkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,3 +40,7 @@ class CaseMatchingSerializers(serializers.ModelSerializer):
         return super().create(validated_data)
         
 
+class CaseBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseBrief
+        fields = ['id', 'transcription', 'generated_caseBrief', 'formatted_Casebrief', 'created_at']

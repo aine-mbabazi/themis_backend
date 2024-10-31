@@ -1,6 +1,6 @@
 
 from rest_framework import generics, viewsets, status, mixins
-from .serializers import TranscriptionSerializer, DiarizedSegmentSerializer, AudioChunkSerializer, CaseMatchingSerializers
+from .serializers import TranscriptionSerializer, DiarizedSegmentSerializer, AudioChunkSerializer, CaseMatchingSerializers,CaseBriefSerializer
 from transcription.models import Transcription
 from diarization.models import DiarizedSegment
 from transcription_chunks.models import AudioChunk
@@ -11,6 +11,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import NotFound
 from case_matching.signals import scrape_case_laws, extract_case_details
 from django.db.models import Count
+from django.http import FileResponse, Http404
+from caseBrief.models import CaseBrief
 
 
 class TranscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -203,6 +205,8 @@ class AudioChunkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+
+
 from django.shortcuts import render, get_object_or_404, redirect
 from transcription.models import Transcription
 
@@ -217,3 +221,51 @@ def generate_case_brief_view(request, transcription_id):
     # Redirect or render a success message (based on your requirement)
     return redirect('case_brief_success')
 
+
+
+def download_case_brief_pdf(request, transcription_id):
+    try:
+        # Retrieve the CaseBrief object using transcription_id
+        case_brief = CaseBrief.objects.get(transcription__id=transcription_id)
+        
+        # Ensure there’s a path to the saved PDF
+        if case_brief.pdf_file_path and os.path.exists(case_brief.pdf_file_path):
+            # Serve the PDF file for download
+            return FileResponse(
+                open(case_brief.pdf_file_path, 'rb'), 
+                as_attachment=True, 
+                filename=f'case_brief_{transcription_id}.pdf'
+            )
+        else:
+            raise Http404("PDF file not found.")
+    
+    except CaseBrief.DoesNotExist:
+        raise Http404("Case brief not found for this transcription.")
+
+
+
+class CaseBriefSegmentListCreateView(generics.ListCreateAPIView):
+    """
+    Handles the creation and listing of casebriefs.
+    """
+    queryset = CaseBrief.objects.all()
+    serializer_class = CaseBriefSerializer
+
+
+class CaseBriefDetailView(generics.ListAPIView):
+    """
+    Retrieve case briefs for a specific transcription.
+    """
+    serializer_class = CaseBriefSerializer
+
+    def get_queryset(self):
+        transcription_id = self.kwargs['pk']
+        return CaseBrief.objects.filter(transcription_id=transcription_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if queryset.exists():
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "No case briefs found for this transcription"}, status=status.HTTP_404_NOT_FOUND)
