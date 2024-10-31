@@ -37,13 +37,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'transcription.apps.TranscriptionConfig',
+    "transcription.apps.TranscriptionConfig",
     "diarization.apps.DiarizationConfig",
     "transcription_chunks.apps.TranscriptionChunksConfig",
-    "case_brief.apps.CaseBriefConfig",
     "api",
-    "cases",
     "rest_framework",
+    "case_matching",
     "corsheaders",
 ]
 

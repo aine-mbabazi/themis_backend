@@ -237,77 +237,77 @@ def format_diarization(diarization_data):
 
 
 
-from fpdf import FPDF
-import re
+# from fpdf import FPDF
+# import re
 
-def save_as_pdf(case_brief, filename, image_path=None):
-    """Saves the given case brief as a PDF file."""
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
+# def save_as_pdf(case_brief, filename, image_path=None):
+#     """Saves the given case brief as a PDF file."""
+#     pdf = FPDF()
+#     pdf.set_auto_page_break(auto=True, margin=15)
+#     pdf.add_page()
 
-    if image_path:
-        pdf.image(image_path, x=(pdf.w - 40) / 2, y=10, w=40, h=40)
+#     if image_path:
+#         pdf.image(image_path, x=(pdf.w - 40) / 2, y=10, w=40, h=40)
     
-    pdf.ln(50)
+#     pdf.ln(50)
 
-    # Split the brief into sections
-    sections = case_brief.split('RULING ON SENTENCING')
+#     # Split the brief into sections
+#     sections = case_brief.split('RULING ON SENTENCING')
     
-    # Handle cases where 'RULING ON SENTENCING' is not found
-    if len(sections) == 1:
-        header = ''
-        ruling = case_brief
-    else:
-        header = sections[0].strip()
-        ruling = 'RULING ON SENTENCING' + sections[1].strip()
+#     # Handle cases where 'RULING ON SENTENCING' is not found
+#     if len(sections) == 1:
+#         header = ''
+#         ruling = case_brief
+#     else:
+#         header = sections[0].strip()
+#         ruling = 'RULING ON SENTENCING' + sections[1].strip()
 
-    # Add the header (everything before "RULING ON SENTENCING")
-    pdf.set_font("Times", style='B', size=13)
-    for line in header.split('\n'):
-        if line.strip():
-            pdf.cell(0, 10, line.strip(), align='C', ln=True)
-        else:
-            pdf.ln(5)
+#     # Add the header (everything before "RULING ON SENTENCING")
+#     pdf.set_font("Times", style='B', size=13)
+#     for line in header.split('\n'):
+#         if line.strip():
+#             pdf.cell(0, 10, line.strip(), align='C', ln=True)
+#         else:
+#             pdf.ln(5)
 
-    pdf.ln(10)
+#     pdf.ln(10)
 
-    # Add "RULING ON SENTENCING" centered and bold
-    if len(sections) > 1:
-        pdf.cell(0, 10, 'RULING ON SENTENCING', align='C', ln=True)
-        pdf.ln(10)
+#     # Add "RULING ON SENTENCING" centered and bold
+#     if len(sections) > 1:
+#         pdf.cell(0, 10, 'RULING ON SENTENCING', align='C', ln=True)
+#         pdf.ln(10)
 
-    # Add the content (everything after "RULING ON SENTENCING")
-    pdf.set_font("Times", size=12)
-    content = ruling.split('DATED, SIGNED AND DELIVERED')[0].strip()
+#     # Add the content (everything after "RULING ON SENTENCING")
+#     pdf.set_font("Times", size=12)
+#     content = ruling.split('DATED, SIGNED AND DELIVERED')[0].strip()
     
-    # Handle bold text
-    def add_text_with_bold(pdf, text):
-        parts = re.split(r'(\[b\].*?\[/b\])', text)
-        for part in parts:
-            if part.startswith('[b]') and part.endswith('[/b]'):
-                pdf.set_font("Times", style='B', size=12)
-                pdf.multi_cell(0, 10, part[3:-4], align='J')
-            else:
-                pdf.set_font("Times", size=12)
-                pdf.multi_cell(0, 10, part, align='J')
+#     # Handle bold text
+#     def add_text_with_bold(pdf, text):
+#         parts = re.split(r'(\[b\].*?\[/b\])', text)
+#         for part in parts:
+#             if part.startswith('[b]') and part.endswith('[/b]'):
+#                 pdf.set_font("Times", style='B', size=12)
+#                 pdf.multi_cell(0, 10, part[3:-4], align='J')
+#             else:
+#                 pdf.set_font("Times", size=12)
+#                 pdf.multi_cell(0, 10, part, align='J')
 
-    add_text_with_bold(pdf, content)
+#     add_text_with_bold(pdf, content)
 
-    pdf.ln(10)
+#     pdf.ln(10)
 
-    # Add the footer (everything after the content)
-    footer_parts = ruling.split('DATED, SIGNED AND DELIVERED')
-    if len(footer_parts) > 1:
-        pdf.set_font("Times", style='B', size=13)
-        footer = 'DATED, SIGNED AND DELIVERED' + footer_parts[1]
-        for line in footer.split('\n'):
-            if line.strip():
-                pdf.cell(0, 10, line.strip(), align='C', ln=True)
-            else:
-                pdf.ln(5)
+#     # Add the footer (everything after the content)
+#     footer_parts = ruling.split('DATED, SIGNED AND DELIVERED')
+#     if len(footer_parts) > 1:
+#         pdf.set_font("Times", style='B', size=13)
+#         footer = 'DATED, SIGNED AND DELIVERED' + footer_parts[1]
+#         for line in footer.split('\n'):
+#             if line.strip():
+#                 pdf.cell(0, 10, line.strip(), align='C', ln=True)
+#             else:
+#                 pdf.ln(5)
 
-    pdf.output(filename)
+#     pdf.output(filename)
 
 
 

@@ -1,13 +1,16 @@
 
 from rest_framework import generics, viewsets, status, mixins
-from .serializers import TranscriptionSerializer, DiarizedSegmentSerializer, AudioChunkSerializer
+from .serializers import TranscriptionSerializer, DiarizedSegmentSerializer, AudioChunkSerializer, CaseMatchingSerializers
 from transcription.models import Transcription
 from diarization.models import DiarizedSegment
 from transcription_chunks.models import AudioChunk
+from case_matching.models import Case_matching
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import NotFound
+from rest_framework.views import APIView
+from case_matching.signals import scrape_case_laws, extract_case_details
 
 
 class TranscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -89,6 +92,53 @@ class DiarizationDetailView(generics.RetrieveAPIView):
 
 
 
+class CaseMatchingListView(generics.ListCreateAPIView):
+    queryset = Case_matching.objects.all()
+    serializer_class = CaseMatchingSerializers
+
+    def post(self, request):
+        transcription_id = request.data.get("transcription")
+        print(f'ID: {request.data}')
+
+        if not transcription_id:
+            return Response({"error": "Transcription ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Extract transcription text using the ID
+            transcription = Transcription.objects.get(id=transcription_id)
+            transcription_text = transcription.transcription_text
+
+            extracted_details = extract_case_details(transcription_text)
+            search_term = ' '.join(extracted_details)
+
+            case_laws = scrape_case_laws(search_term)
+
+            # Create a new Case_matching instance
+            case_matching = Case_matching.objects.create(
+                transcription=transcription,
+                case={"details": extracted_details, "related_cases": case_laws}
+            )
+            
+            serializer = CaseMatchingSerializers(case_matching)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Transcription.DoesNotExist:
+            return Response({"error": "Transcription not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+class CaseMatchingDetailView(generics.RetrieveAPIView):
+    queryset = Case_matching.objects.all()
+    serializer_class = CaseMatchingSerializers
+    def get(self, request, id):
+        try:
+           case_law = Case_matching.objects.get(transcription_id=id)
+           serializer = CaseMatchingSerializers(case_law)
+           return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Case_matching.DoesNotExist:
+            return Response({"error": "Diarization not found for this transcription"}, status=status.HTTP_404_NOT_FOUND)
+
 
 class AudioChunkViewSet(viewsets.ModelViewSet):
     """
@@ -135,19 +185,6 @@ class AudioChunkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from transcription.models import Transcription
-from .casebrief_generation import generate_case_brief_from_transcription
+# from django.shortcuts import render, get_object_or_404, redirect
+# from transcription.models import Transcription
 
-def generate_case_brief_view(request, transcription_id):
-    transcription = get_object_or_404(Transcription, id=transcription_id)
-
-    # Generate PDF file for the case brief
-    pdf_filename = f"case_brief_{transcription.case_number}.pdf"
-    image_path = "/home/student/Downloads/themis_logo.png"  # Optional: Path to an image if needed
-    
-    # Call the function to generate the case brief and save it as a PDF
-    generate_case_brief_from_transcription(transcription_id, pdf_filename, image_path)
-
-    # Redirect or render a success message (based on your requirement)
-    return redirect('case_brief_success')  # Redirect to a success page

@@ -20,6 +20,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', include('cases.urls')),
+    # path('', include('cases.urls')),
     path('api/', include('api.urls')),
+    path('api/', include('api.urls')),
+    # path('', include('case_matching'))
 ]

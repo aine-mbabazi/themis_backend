@@ -1,19 +1,18 @@
 from django.urls import path
 
-from cases.views import transcribed_cases_count
-
 from .views import (
     TranscriptionViewSet,
     # TranscriptionDetailView,
     DiarizedSegmentListCreateView,
     DiarizationDetailView,
-    AudioChunkViewSet
+    AudioChunkViewSet,
+    CaseMatchingDetailView,
+    CaseMatchingListView,
 )
 
 urlpatterns = [
-    path('transcribed-cases/', transcribed_cases_count, name='transcribed-cases'),
 
-        path('transcriptions/', TranscriptionViewSet.as_view({'get': 'list', 'post': 'create'}), name='transcription-list'),
+    path('transcriptions/', TranscriptionViewSet.as_view({'get': 'list', 'post': 'create'}), name='transcription-list'),
     path('transcription/<int:pk>/', TranscriptionViewSet.as_view({'get': 'retrieve'}), name='transcription-detail'),
 
     # Diarization API paths
@@ -22,4 +21,7 @@ urlpatterns = [
 
     path('audio-chunks/', AudioChunkViewSet.as_view({'get': 'list', 'post': 'create'}), name='audio-chunk-list-create'),
     path('audio-chunks/<int:pk>/', AudioChunkViewSet.as_view({'get': 'retrieve'}), name='audio-chunk-detail'),
+
+    path('case_laws/', CaseMatchingListView.as_view(), name='case_laws'),
+    path('case_laws/<int:id>/', CaseMatchingDetailView.as_view(), name='case_law'),
 ]
