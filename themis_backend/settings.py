@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "transcription.apps.TranscriptionConfig",
     "diarization.apps.DiarizationConfig",
     "transcription_chunks.apps.TranscriptionChunksConfig",
+    "case_brief.apps.CaseBriefConfig",
     "api",
     "rest_framework",
     "case_matching",
