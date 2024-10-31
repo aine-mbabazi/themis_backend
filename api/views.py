@@ -9,8 +9,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import NotFound
-from rest_framework.views import APIView
 from case_matching.signals import scrape_case_laws, extract_case_details
+from django.db.models import Count
 
 
 class TranscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -47,6 +47,24 @@ class TranscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixin
             'status': transcription.status,
             'transcription_text': transcription.transcription_text,
         })
+        
+        
+        
+    @action(detail=False, methods=['get'])
+    def transcription_status_counts(self, request):
+        """
+        Return the count of transcriptions with statuses 'completed' and 'pending'.
+        """
+        counts = Transcription.objects.values('status').annotate(total=Count('status'))
+        completed_count = next((item['total'] for item in counts if item['status'] == 'completed'), 0)
+        pending_count = next((item['total'] for item in counts if item['status'] == 'pending'), 0)
+        
+        return Response({
+            'completed': completed_count,
+            'pending': pending_count,
+        }, status=status.HTTP_200_OK)
+        
+        
 
 
 class TranscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -185,6 +203,17 @@ class AudioChunkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-# from django.shortcuts import render, get_object_or_404, redirect
-# from transcription.models import Transcription
+from django.shortcuts import render, get_object_or_404, redirect
+from transcription.models import Transcription
+
+
+def generate_case_brief_view(request, transcription_id):
+    transcription = get_object_or_404(Transcription, id=transcription_id)
+
+    # Generate PDF file for the case brief
+    pdf_filename = f"case_brief_{transcription.case_number}.pdf"
+    image_path = "/home/student/Downloads/themis_logo.png"  
+
+    # Redirect or render a success message (based on your requirement)
+    return redirect('case_brief_success')
 

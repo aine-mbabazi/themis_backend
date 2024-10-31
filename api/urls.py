@@ -2,7 +2,6 @@ from django.urls import path
 
 from .views import (
     TranscriptionViewSet,
-    # TranscriptionDetailView,
     DiarizedSegmentListCreateView,
     DiarizationDetailView,
     AudioChunkViewSet,
@@ -12,6 +11,7 @@ from .views import (
 
 urlpatterns = [
 
+    path('transcriptions/transcription_status_counts/', TranscriptionViewSet.as_view({'get': 'transcription_status_counts'}), name='transcription-status-counts'),
     path('transcriptions/', TranscriptionViewSet.as_view({'get': 'list', 'post': 'create'}), name='transcription-list'),
     path('transcription/<int:pk>/', TranscriptionViewSet.as_view({'get': 'retrieve'}), name='transcription-detail'),
 

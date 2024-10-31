@@ -36,3 +36,5 @@ class CaseMatchingSerializers(serializers.ModelSerializer):
         if not isinstance(transcription, (str, bytes)):
             raise serializers.ValidationError("Transcription must be a string or bytes-like object.")
         return super().create(validated_data)
+        
+
