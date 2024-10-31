@@ -8,7 +8,7 @@ from transcription.models import Transcription
 
 class DiarizedSegment(models.Model):
     transcription = models.OneToOneField(Transcription, on_delete=models.CASCADE)
-    diarization_data = models.TextField(blank=True, null=True)  # This will be filled automatically
+    diarization_data = models.TextField(blank=True, null=True) 
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):

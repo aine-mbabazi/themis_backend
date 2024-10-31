@@ -1,17 +1,9 @@
-from cases import serializers
-from cases.models import Case
-from cases import serializers
-from cases.models import Case
+
 from rest_framework import serializers
 from transcription.models import Transcription
 from diarization.models import DiarizedSegment
 from transcription_chunks.models import AudioChunk
-      
-
-class CaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Case
-        fields = ['id', 'title', 'is_transcribed']
+from case_matching.models import Case_matching
 
 class AudioChunkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,5 +26,15 @@ class DiarizedSegmentSerializer(serializers.ModelSerializer):
         model = DiarizedSegment
         fields = ['transcription', 'diarization_data', 'date_updated']
 
+class CaseMatchingSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Case_matching
+        fields = ['transcription', 'date_created', 'case']
+
+    def create(self, validated_data):
+        transcription = validated_data.get('transcription')
+        if not isinstance(transcription, (str, bytes)):
+            raise serializers.ValidationError("Transcription must be a string or bytes-like object.")
+        return super().create(validated_data)
         
 

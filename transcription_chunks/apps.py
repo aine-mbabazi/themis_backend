@@ -6,7 +6,7 @@ class TranscriptionChunksConfig(AppConfig):
     def ready(self):
         try:
             # Use the full import path to avoid any potential import errors
-            import transcription_chunks.signals  # Ensure that signals are imported and registered
+            import transcription_chunks.signals
             print("signals imported successfully")
         except ImportError as e:
             print(f"Error importing transcription_chunks signals: {e}")
